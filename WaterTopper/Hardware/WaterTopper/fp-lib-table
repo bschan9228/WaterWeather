@@ -1,0 +1,5 @@
+(fp_lib_table
+  (lib (name "TYPE-C-31-M-12")(type "KiCad")(uri "C:/Users/bscha/Desktop/WaterWeather/WaterTopper/Hardware/lib/TYPE-C-31-M-12")(options "")(descr ""))
+  (lib (name "ESP32-S3-MINI-1-N8")(type "KiCad")(uri "C:/Users/bscha/Desktop/WaterWeather/WaterTopper/Hardware/lib/ESP32-S3-MINI-1-N8")(options "")(descr ""))
+  (lib (name "footprints")(type "KiCad")(uri "C:/Users/bscha/Desktop/WaterWeather/WaterTopper/Hardware/lib/ul_DRV8881PRHRT/2022-11-18_11-37-50/footprints.pretty")(options "")(descr ""))
+)

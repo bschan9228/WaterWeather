@@ -17,7 +17,7 @@ void setup(void)
   tft.fillScreen(TFT_WHITE);
   tft.setTextColor(TFT_BLACK);
 
-  tft.drawNumber(10, 100, 100, 2);
+  tft.drawNumber(5, 100, 100, 2);
 }
 
 void loop()

@@ -1,0 +1,5 @@
+(sym_lib_table
+  (lib (name "ESP32-S3-MINI-1-N8")(type "Legacy")(uri "C:/Users/bscha/Desktop/WaterWeather/WaterTopper/Hardware/lib/ESP32-S3-MINI-1-N8/ESP32-S3-MINI-1-N8.lib")(options "")(descr ""))
+  (lib (name "TYPE-C-31-M-12")(type "Legacy")(uri "C:/Users/bscha/Desktop/WaterWeather/WaterTopper/Hardware/lib/TYPE-C-31-M-12/TYPE-C-31-M-12.lib")(options "")(descr ""))
+  (lib (name "2022-11-18_11-37-50")(type "Legacy")(uri "C:/Users/bscha/Desktop/WaterWeather/WaterTopper/Hardware/lib/ul_DRV8881PRHRT/2022-11-18_11-37-50/2022-11-18_11-37-50.lib")(options "")(descr ""))
+)
