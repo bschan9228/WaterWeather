@@ -1,0 +1,28 @@
+Comment,Designator,Footprint,,,,,,Manufacture,,,Digikey
+22u Unpolarized capacitor,C1,C_0805_2012Metric,,,,,,CL21A226MQQNNNG,,,1276-6460-1-ND
+.1u Unpolarized capacitor,"C2,C6,C7,C10",C_0603_1608Metric,,,,,,C0603C104J4RAC7867,,,399-C0603C104J4RAC7867CT-ND
+1u Unpolarized capacitor,"C3,C4",C_0805_2012Metric,,,,,,CL21B105KAFNNNE,,,1276-1066-1-ND
+".47u Unpolarized capacitor, small symbol","C5,C9",C_0603_1608Metric,,,,,,CC0603KRX7R8BB474,,,311-1805-1-ND
+"100u Unpolarized capacitor, small symbol",C8,C_Elec_6.3x5.8,,,,,,A768EB107M1ELAE036,,,399-A768EB107M1ELAE036CT-ND
+".01u Unpolarized capacitor, small symbol","C11,C12",C_0603_1608Metric,,,,,,C0603C104J4RAC7867,,,399-C0603C104J4RAC7867CT-ND
+"WHITE Light emitting diode, small symbol","D1,D2,D3,D4,D5,D6",LED_0603_1608Metric,,,,,,~,,,~
+D_Schottky Schottky diode,"D7,D8",D_SMA,,,,,,B320A-13-F,,,B320A-FDICT-ND
+MountingHole Mounting Hole without connection,"H1,H2,H3,H4",MountingHole_3.2mm_M3,,,,,,~,,,~
+TYPE-C-31-M-12 ,J1,HRO_TYPE-C-31-M-12,,,,,,~,,,~
+Barrel_Jack_Switch DC Barrel Jack with an internal switch,J2,BarrelJack_Wuerth_6941xx301002,,,,,,6.94106E+11,,,732-5930-ND
+"Conn_01x07 Generic connector, single row, 01x07, script generated (kicad-library-utils/schlib/autogen/connector/)",J3,PinHeader_1x07_P2.00mm_Vertical,,,,,,~,,,~
+"Conn_01x04 Generic connector, single row, 01x04, script generated (kicad-library-utils/schlib/autogen/connector/)","J4,J5,J6,J7",JST_PH_B4B-PH-K_1x04_P2.00mm_Vertical,,,,,,B4B-PH-K-S(LF)(SN),,,455-1706-ND
+"Screw_Terminal_01x02 Generic screw terminal, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)","J8,J9",TerminalBlock_bornier-2_P5.08mm,,,,,,1760510000,,,281-1882-ND
+"2N7002 0.115A Id, 60V Vds, N-Channel MOSFET, SOT-23",Q1,SOT-23,,,,,,2N7002,,,2N7002NCT-ND
+"5k1 Resistor, small symbol","R1,R2,R23,R24",R_0603_1608Metric,,,,,,RC0603JR-075K1L,,,311-5.1KGRCT-ND
+0 Resistor,"R3,R4,R5,R6,R8,R9",R_0603_1608Metric,,,,,,RC0603JR-0710KL,,,311-10KGRCT-ND
+"250m Resistor, small symbol","R7,R10",R_0603_1608Metric,,,,,,CSR0603FKR250,,,CSR0603FKR250CT-ND
+"10k Resistor, small symbol","R11,R13,R21,R22",R_0603_1608Metric,,,,,,RC0603JR-0710KL,,,311-10KGRCT-ND
+"20k Resistor, small symbol","R12,R14",R_0603_1608Metric,,,,,,RC0603JR-0720KL,,,311-20KGRCT-ND
+"2k2 Resistor, small symbol","R15,R16,R17,R18,R19,R20",R_0603_1608Metric,,,,,,RC0603JR-072K2L,,,311-2.2KGRCT-ND
+SW_SPST Single Pole Single Throw (SPST) switch,"SW1,SW2",SW_SPST_PTS810,,,,,,PTS810 SJM 250 SMTR LFS,,,CKN10502CT-ND
+SW_SPST Single Pole Single Throw (SPST) switch,SW3,SW_Tactile_SPST_Angled_PTS645Vx58-2LFS,,,,,,PTS645VL58-2 LFS,,,CKN9116-ND
+"AP2112K-3.3 600mA low dropout linear regulator, with enable pin, 3.8V-6V input voltage range, 3.3V fixed positive output, SOT-23-5",U1,SOT-23-5,,,,,,AP2112K-3.3TRG1,,,AP2112K-3.3TRG1DICT-ND
+ESP32-S3-MINI-1-N8 ,U2,XCVR_ESP32-S3-MINI-1-N8,,,,,,ESP32-S3-MINI-1-N8,,,1965-ESP32-S3-MINI-1-N8-ND
+DRV8881PRHRT ,U3,DRV8881PRHRT,,,,,,DRV8881PRHRT,,,296-44535-2-ND
+"BMP280 Absolute Barometric Pressure Sensor, LGA-8",U4,Bosch_LGA-8_2x2.5mm_P0.65mm_ClockwisePinNumbering,,,,,,DPS310XTSA1,,,DPS310XTSA1CT-ND
