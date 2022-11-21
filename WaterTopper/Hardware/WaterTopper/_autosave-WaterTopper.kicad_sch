@@ -7261,7 +7261,7 @@
   (symbol (lib_id "Transistor_FET:2N7002") (at 201.295 135.89 270) (unit 1)
     (in_bom yes) (on_board yes)
     (uuid 5a27f369-a855-44cd-b612-0fe1bf1ef58f)
-    (property "Reference" "Q?" (id 0) (at 201.295 141.605 90))
+    (property "Reference" "Q1" (id 0) (at 201.295 141.605 90))
     (property "Value" "2N7002" (id 1) (at 201.295 144.145 90))
     (property "Footprint" "Package_TO_SOT_SMD:SOT-23" (id 2) (at 199.39 140.97 0)
       (effects (font (size 1.27 1.27) italic) (justify left) hide)
@@ -7631,7 +7631,7 @@
   (symbol (lib_id "power:+3V3") (at 194.945 133.985 0) (unit 1)
     (in_bom yes) (on_board yes) (fields_autoplaced)
     (uuid 92e321f0-f634-47b7-9beb-7e112831b3a4)
-    (property "Reference" "#PWR?" (id 0) (at 194.945 137.795 0)
+    (property "Reference" "#PWR0126" (id 0) (at 194.945 137.795 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "+3V3" (id 1) (at 194.945 128.27 0))
@@ -8754,7 +8754,7 @@
       (reference "#PWR0125") (unit 1) (value "GND") (footprint "")
     )
     (path "/92e321f0-f634-47b7-9beb-7e112831b3a4"
-      (reference "#PWR?") (unit 1) (value "+3V3") (footprint "")
+      (reference "#PWR0126") (unit 1) (value "+3V3") (footprint "")
     )
     (path "/cd1fb780-87ab-4d7a-9da8-17057f510eeb"
       (reference "C1") (unit 1) (value "22u") (footprint "Capacitor_SMD:C_0805_2012Metric")
@@ -8856,7 +8856,7 @@
       (reference "J9") (unit 1) (value "Screw_Terminal_01x02") (footprint "TerminalBlock:TerminalBlock_bornier-2_P5.08mm")
     )
     (path "/5a27f369-a855-44cd-b612-0fe1bf1ef58f"
-      (reference "Q?") (unit 1) (value "2N7002") (footprint "Package_TO_SOT_SMD:SOT-23")
+      (reference "Q1") (unit 1) (value "2N7002") (footprint "Package_TO_SOT_SMD:SOT-23")
     )
     (path "/60c0db67-3113-4bbf-832e-21f16f3c7d44"
       (reference "R1") (unit 1) (value "5k1") (footprint "Resistor_SMD:R_0603_1608Metric")
