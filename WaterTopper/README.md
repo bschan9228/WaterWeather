@@ -28,4 +28,7 @@ It features:
 - Display's connectors has the wrong size/footprint
 - JST connectors have the wrong footprint
 
+- Significant problems with motor driver not working
+- Voltage divider dividing incorrectly
+
 Thanks for UCSD Envision/Colin for making this project happen.
