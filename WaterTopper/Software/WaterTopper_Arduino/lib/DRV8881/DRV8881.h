@@ -7,6 +7,9 @@
 #define PWM_FREQ 5000
 #define PWM_RESOLUTION 8
 #define PWM_CHANNEL 0
+#define MAX_DUTY 255
+
+void IRAM_ATTR pwmTimer();
 
 class DRV8881
 {
@@ -14,7 +17,10 @@ private:
     int driver;
 
 public:
+    // ------------------------------------------- ------------ ------------------------------------------- //
     // ------------------------------------------- MOTOR DRIVER ------------------------------------------- //
+    // ------------------------------------------- ------------ ------------------------------------------- //
+
     /**
      * @brief Initializes the motor driver library
      * @param driver Motor driver pin number
@@ -51,7 +57,10 @@ public:
      */
     void toggleMotor(int pin);
 
+    // ------------------------------------------------ --- ------------------------------------------------ //
     // ------------------------------------------------ PWM ------------------------------------------------ //
+    // ------------------------------------------------ --- ------------------------------------------------ //
+
     void pwmInit();
 
     void pwmInit(uint8_t channel, uint32_t freq, uint8_t resolution);
@@ -61,6 +70,10 @@ public:
     void pwmRemovePin(int pin);
 
     void pwmEnable();
+
+    void pwmEnable(void (*fn)(), uint64_t freq);
+
+    void pwmDisable();
 };
 
 #endif

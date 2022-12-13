@@ -56,6 +56,12 @@ void DRV8881::toggleMotor(int pin)
     digitalWrite(pin, !digitalRead(pin));
 }
 
+// ------------------------------------------------ --- ------------------------------------------------ //
+// ------------------------------------------------ PWM ------------------------------------------------ //
+// ------------------------------------------------ --- ------------------------------------------------ //
+
+hw_timer_t *timer;
+
 void DRV8881::pwmInit()
 {
     ledcSetup(PWM_CHANNEL, PWM_FREQ, PWM_RESOLUTION);
@@ -68,7 +74,9 @@ void DRV8881::pwmInit(uint8_t channel, uint32_t freq, uint8_t resolution)
 
 void DRV8881::pwmAddPin(int pin)
 {
+    // TODO: ledattach & pinmode overrides each other?
     ledcAttachPin(pin, PWM_CHANNEL);
+    // pinMode(pin, OUTPUT);
 }
 
 void DRV8881::pwmRemovePin(int pin)
@@ -76,22 +84,28 @@ void DRV8881::pwmRemovePin(int pin)
     ledcDetachPin(pin);
 }
 
+/**
+ * @brief Enables PWM. Default timer set at 1s.
+ *
+ */
 void DRV8881::pwmEnable()
 {
+    timer = timerBegin(0, 80, true);
+    timerAttachInterrupt(timer, &pwmTimer, true);
+    timerAlarmWrite(timer, 1000000, true);
+    timerAlarmEnable(timer);
+}
 
-    // ledcWrite(pin, 100);
-    for (int dutyCycle = 0; dutyCycle <= 255; dutyCycle++)
-    {
-        // changing the LED brightness with PWM
-        ledcWrite(PWM_CHANNEL, dutyCycle);
-        delay(2);
-    }
+void DRV8881::pwmEnable(void (*pwm_fn)(), uint64_t freq)
+{
+    timer = timerBegin(0, 80, true);
+    timerAttachInterrupt(timer, pwm_fn, true);
+    timerAlarmWrite(timer, freq, true);
+    timerAlarmEnable(timer);
+}
 
-    // decrease the LED brightness
-    for (int dutyCycle = 255; dutyCycle >= 0; dutyCycle--)
-    {
-        // changing the LED brightness with PWM
-        ledcWrite(PWM_CHANNEL, dutyCycle);
-        delay(2);
-    }
+void DRV8881::pwmDisable()
+{
+    ledcWrite(PWM_CHANNEL, 0);
+    timerAlarmDisable(timer);
 }
