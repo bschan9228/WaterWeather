@@ -1,9 +1,5 @@
 var ws = null;
 
-function insertMsg(user, message) {
-    if (message != null) document.getElementById("chat").innerHTML = `<p>${user}: ${message} </p>` + document.getElementById("chat").innerHTML;
-}
-
 function sendMsg() {
     ws.send(buildMsg());
 }
@@ -24,16 +20,22 @@ function isJsonString(str) {
     return true;
 }
 
+// Temperature stuff
+function updateTemperature(temp) {
+    if (message != null) document.getElementById("chat").innerHTML = `<p>Current temp: ${temp} </p>` + document.getElementById("chat").innerHTML;
+}
+
+
 function beginSocket() {
-    ws = new WebSocket('ws://'+document.location.host+'/ws');
+    ws = new WebSocket('ws://' + document.location.host + '/ws');
 
     ws.onmessage = function(e){
-        console.log(e.data);
+        // console.log(e.data);
+        // console.log(String(e.data).split(","));
+        var scuffedJson = String(e.data).split(",");
 
-        if (isJsonString(e.data)) {
-                const msgdata = JSON.parse(e.data);    
-                insertMsg(msgdata["user"], msgdata["message"]);
-            
+        if (scuffedJson.pop() == "temperature") {
+            updateTemperature(scuffedJson[0]);
         }
     }        
 }

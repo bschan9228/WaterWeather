@@ -1,4 +1,4 @@
-/* * Data converted from C:/Users/bscha/Desktop/html_ap_test/build/esp-idf/mbedtls/x509_crt_bundle
+/* * Data converted from C:/Users/bscha/Desktop/WaterWeather/WaterTopper/Software/WaterTopper_EspIDF/build/esp-idf/mbedtls/x509_crt_bundle
  */
 .data
 .section .rodata.embedded

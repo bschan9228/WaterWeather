@@ -1,8 +1,8 @@
-# Install script for directory: C:/Users/bscha/Desktop/html_ap_test/main
+# Install script for directory: C:/Users/bscha/Desktop/WaterWeather/WaterTopper/Software/WaterTopper_EspIDF/main
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "C:/Program Files (x86)/html_ap_test")
+  set(CMAKE_INSTALL_PREFIX "C:/Program Files (x86)/WaterTopper_EspIDF")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 

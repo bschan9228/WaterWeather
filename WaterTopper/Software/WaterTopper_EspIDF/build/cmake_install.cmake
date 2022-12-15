@@ -1,8 +1,8 @@
-# Install script for directory: C:/Users/bscha/Desktop/html_ap_test
+# Install script for directory: C:/Users/bscha/Desktop/WaterWeather/WaterTopper/Software/WaterTopper_EspIDF
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "C:/Program Files (x86)/html_ap_test")
+  set(CMAKE_INSTALL_PREFIX "C:/Program Files (x86)/WaterTopper_EspIDF")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -39,7 +39,7 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("C:/Users/bscha/Desktop/html_ap_test/build/esp-idf/cmake_install.cmake")
+  include("C:/Users/bscha/Desktop/WaterWeather/WaterTopper/Software/WaterTopper_EspIDF/build/esp-idf/cmake_install.cmake")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT)
@@ -50,5 +50,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "C:/Users/bscha/Desktop/html_ap_test/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "C:/Users/bscha/Desktop/WaterWeather/WaterTopper/Software/WaterTopper_EspIDF/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

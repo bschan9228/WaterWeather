@@ -1,11 +1,4 @@
-/* WebSocket Echo Server Example
-
-   This example code is in the Public Domain (or CC0 licensed, at your option.)
-
-   Unless required by applicable law or agreed to in writing, this
-   software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-   CONDITIONS OF ANY KIND, either express or implied.
-*/
+#include <stdlib.h>
 
 #include <esp_wifi.h>
 #include <esp_event.h>
@@ -18,12 +11,27 @@
 #include "protocol_examples_common.h"
 
 #include <esp_http_server.h>
+#include "driver/temperature_sensor.h"
 
 extern const char root_start[] asm("_binary_root_html_start");
 extern const char root_end[] asm("_binary_root_html_end");
 
 extern const char root_js_start[] asm("_binary_root_js_start");
 extern const char root_js_end[] asm("_binary_root_js_end");
+
+// ================================ ISR ================================ //
+
+// == TEMPERATURE == //
+
+temperature_sensor_handle_t temp_handle = NULL;
+temperature_sensor_config_t temp_sensor = {
+    .range_min = 20,
+    .range_max = 50,
+};
+
+// ======================================================= =============== ======================================================= //
+// ======================================================= WEBSOCKET BEGIN ======================================================= //
+// ======================================================= =============== ======================================================= //
 
 /* A simple example that demonstrates using websocket echo server
  */
@@ -45,7 +53,23 @@ struct async_resp_arg
  */
 static void ws_async_send(void *arg)
 {
-    static const char *data = "Async data";
+    static char data[128];
+    // Enable temperature sensor
+    ESP_ERROR_CHECK(temperature_sensor_enable(temp_handle));
+    // Get converted sensor data
+    float tsens_out;
+    ESP_ERROR_CHECK(temperature_sensor_get_celsius(temp_handle, &tsens_out));
+    printf("Temperature in %f °C\n", tsens_out);
+    // Disable the temperature sensor if it's not needed and save the power
+    ESP_ERROR_CHECK(temperature_sensor_disable(temp_handle));
+
+    // snprintf(data, sizeof data, "%f", tsens_out); //working
+    snprintf(data, sizeof data, "%f", tsens_out);
+    strcat(data, ",temperature");
+
+    // static const char *data = "Async data";
+    // printf(data);
+
     struct async_resp_arg *resp_arg = arg;
     httpd_handle_t hd = resp_arg->hd;
     int fd = resp_arg->fd;
@@ -57,6 +81,18 @@ static void ws_async_send(void *arg)
 
     httpd_ws_send_frame_async(hd, fd, &ws_pkt);
     free(resp_arg);
+}
+
+// TODO
+static esp_err_t httpd_ws_broadcast(httpd_handle_t hd)
+{
+    static size_t max_clients = CONFIG_LWIP_MAX_LISTENING_TCP;
+    size_t fds = max_clients;
+    int client_fds[max_clients];
+    esp_err_t client_list = httpd_get_client_list(hd, &fds, client_fds);
+    printf(client_fds);
+
+    return ESP_OK;
 }
 
 static esp_err_t trigger_async_send(httpd_handle_t handle, httpd_req_t *req)
@@ -117,7 +153,12 @@ static esp_err_t echo_handler(httpd_req_t *req)
         free(buf);
         return trigger_async_send(req->handle, req);
     }
-
+    if (ws_pkt.type == HTTPD_WS_TYPE_TEXT &&
+        strcmp((char *)ws_pkt.payload, "temperature") == 0)
+    {
+        free(buf);
+        return trigger_async_send(req->handle, req);
+    }
     ret = httpd_ws_send_frame(req, &ws_pkt);
     if (ret != ESP_OK)
     {
@@ -281,4 +322,30 @@ void app_main(void)
 
     /* Start the server for the first time */
     server = start_webserver();
+
+    ESP_ERROR_CHECK(temperature_sensor_install(&temp_sensor, &temp_handle));
+
+    // Enable temperature sensor
+    ESP_ERROR_CHECK(temperature_sensor_enable(temp_handle));
+    // Get converted sensor data
+    float tsens_out;
+    ESP_ERROR_CHECK(temperature_sensor_get_celsius(temp_handle, &tsens_out));
+    printf("Temperature in %f °C\n", tsens_out);
+    // Disable the temperature sensor if it's not needed and save the power
+    ESP_ERROR_CHECK(temperature_sensor_disable(temp_handle));
+
+    const TickType_t xDelay = 500 / portTICK_PERIOD_MS;
+
+    printf("========================= BROADCASTING =========================");
+    vTaskDelay(xDelay);
+    // httpd_ws_broadcast(server);
+
+    // char d[24] = "test";
+    // httpd_ws_frame_t ws_pkt;
+    // memset(&ws_pkt, 0, sizeof(httpd_ws_frame_t));
+    // ws_pkt.payload = (uint8_t *)d;
+    // ws_pkt.len = strlen(d);
+    // ws_pkt.type = HTTPD_WS_TYPE_TEXT;
+
+    // (&ws_pkt);
 }

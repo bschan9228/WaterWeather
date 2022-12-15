@@ -1,8 +1,8 @@
 {
     "project_name":       "bootloader",
     "project_path":       "C:/Users/bscha/esp/esp-idf/components/bootloader/subproject",
-    "build_dir":          "C:/Users/bscha/Desktop/html_ap_test/build/bootloader",
-    "config_file":        "C:/Users/bscha/Desktop/html_ap_test/sdkconfig",
+    "build_dir":          "C:/Users/bscha/Desktop/WaterWeather/WaterTopper/Software/WaterTopper_EspIDF/build/bootloader",
+    "config_file":        "C:/Users/bscha/Desktop/WaterWeather/WaterTopper/Software/WaterTopper_EspIDF/sdkconfig",
     "config_defaults":    "",
     "app_elf":            "bootloader.elf",
     "app_bin":            "bootloader.bin",
