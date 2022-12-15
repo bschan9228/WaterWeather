@@ -30,7 +30,7 @@ function beginSocket() {
     ws = new WebSocket('ws://' + document.location.host + '/ws');
 
     ws.onmessage = function(e){
-        // console.log(e.data);
+        console.log("Server returned: " + e.data);
         // console.log(String(e.data).split(","));
         var scuffedJson = String(e.data).split(",");
 

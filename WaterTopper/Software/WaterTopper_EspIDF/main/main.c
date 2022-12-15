@@ -19,6 +19,8 @@ extern const char root_end[] asm("_binary_root_html_end");
 extern const char root_js_start[] asm("_binary_root_js_start");
 extern const char root_js_end[] asm("_binary_root_js_end");
 
+static const size_t max_clients = 4;
+
 // ================================ ISR ================================ //
 
 // == TEMPERATURE == //
@@ -28,6 +30,7 @@ temperature_sensor_config_t temp_sensor = {
     .range_min = 20,
     .range_max = 50,
 };
+float *temperature;
 
 // ======================================================= =============== ======================================================= //
 // ======================================================= WEBSOCKET BEGIN ======================================================= //
@@ -51,7 +54,21 @@ struct async_resp_arg
 /*
  * async send function, which we put into the httpd work queue
  */
-static void ws_async_send(void *arg)
+
+static float update_temperature()
+{
+    // Enable temperature sensor
+    ESP_ERROR_CHECK(temperature_sensor_enable(temp_handle));
+    // Get converted sensor data
+    float tsens_out;
+    ESP_ERROR_CHECK(temperature_sensor_get_celsius(temp_handle, &tsens_out));
+    printf("Temperature in %f °C\n", tsens_out);
+    // Disable the temperature sensor if it's not needed and save the power
+    ESP_ERROR_CHECK(temperature_sensor_disable(temp_handle));
+    return tsens_out;
+}
+
+static void send_temperature(void *arg)
 {
     static char data[128];
     // Enable temperature sensor
@@ -63,12 +80,8 @@ static void ws_async_send(void *arg)
     // Disable the temperature sensor if it's not needed and save the power
     ESP_ERROR_CHECK(temperature_sensor_disable(temp_handle));
 
-    // snprintf(data, sizeof data, "%f", tsens_out); //working
     snprintf(data, sizeof data, "%f", tsens_out);
     strcat(data, ",temperature");
-
-    // static const char *data = "Async data";
-    // printf(data);
 
     struct async_resp_arg *resp_arg = arg;
     httpd_handle_t hd = resp_arg->hd;
@@ -84,15 +97,65 @@ static void ws_async_send(void *arg)
 }
 
 // TODO
-static esp_err_t httpd_ws_broadcast(httpd_handle_t hd)
-{
-    static size_t max_clients = CONFIG_LWIP_MAX_LISTENING_TCP;
-    size_t fds = max_clients;
-    int client_fds[max_clients];
-    esp_err_t client_list = httpd_get_client_list(hd, &fds, client_fds);
-    printf(client_fds);
 
-    return ESP_OK;
+static void send_hello(void *arg)
+{
+    static const char *data = "Hello client";
+    struct async_resp_arg *resp_arg = arg;
+    httpd_handle_t hd = resp_arg->hd;
+    int fd = resp_arg->fd;
+    httpd_ws_frame_t ws_pkt;
+    memset(&ws_pkt, 0, sizeof(httpd_ws_frame_t));
+    ws_pkt.payload = (uint8_t *)data;
+    ws_pkt.len = strlen(data);
+    ws_pkt.type = HTTPD_WS_TYPE_TEXT;
+
+    httpd_ws_send_frame_async(hd, fd, &ws_pkt);
+    free(resp_arg);
+}
+
+// Get all clients and send async message
+static void wss_server_send_messages(httpd_handle_t *server)
+{
+    bool send_messages = true;
+
+    // Send async message to all connected clients that use websocket protocol every 10 seconds
+    while (send_messages)
+    {
+        vTaskDelay(10000 / portTICK_PERIOD_MS);
+
+        if (!*server)
+        { // httpd might not have been created by now
+            continue;
+        }
+        size_t clients = max_clients;
+        int client_fds[max_clients];
+        if (httpd_get_client_list(*server, &clients, client_fds) == ESP_OK)
+        {
+            for (size_t i = 0; i < clients; ++i)
+            {
+                int sock = client_fds[i];
+                if (httpd_ws_get_fd_info(*server, sock) == HTTPD_WS_CLIENT_WEBSOCKET)
+                {
+                    ESP_LOGI(TAG, "Active client (fd=%d) -> sending async message", sock);
+                    struct async_resp_arg *resp_arg = malloc(sizeof(struct async_resp_arg));
+                    resp_arg->hd = *server;
+                    resp_arg->fd = sock;
+                    if (httpd_queue_work(resp_arg->hd, send_temperature, resp_arg) != ESP_OK)
+                    {
+                        ESP_LOGE(TAG, "httpd_queue_work failed!");
+                        send_messages = false;
+                        break;
+                    }
+                }
+            }
+        }
+        else
+        {
+            ESP_LOGE(TAG, "httpd_get_client_list failed!");
+            return;
+        }
+    }
 }
 
 static esp_err_t trigger_async_send(httpd_handle_t handle, httpd_req_t *req)
@@ -100,7 +163,8 @@ static esp_err_t trigger_async_send(httpd_handle_t handle, httpd_req_t *req)
     struct async_resp_arg *resp_arg = malloc(sizeof(struct async_resp_arg));
     resp_arg->hd = req->handle;
     resp_arg->fd = httpd_req_to_sockfd(req);
-    return httpd_queue_work(handle, ws_async_send, resp_arg);
+    printf("%p", &handle);
+    return httpd_queue_work(handle, send_hello, resp_arg);
 }
 
 /*
@@ -148,9 +212,12 @@ static esp_err_t echo_handler(httpd_req_t *req)
     }
     ESP_LOGI(TAG, "Packet type: %d", ws_pkt.type);
     if (ws_pkt.type == HTTPD_WS_TYPE_TEXT &&
-        strcmp((char *)ws_pkt.payload, "Trigger async") == 0)
+        strcmp((char *)ws_pkt.payload, "broadcast") == 0)
     {
         free(buf);
+        // TODO: RETURN
+        printf("%p", &req->handle);
+        wss_server_send_messages(req->handle);
         return trigger_async_send(req->handle, req);
     }
     if (ws_pkt.type == HTTPD_WS_TYPE_TEXT &&
@@ -334,18 +401,7 @@ void app_main(void)
     // Disable the temperature sensor if it's not needed and save the power
     ESP_ERROR_CHECK(temperature_sensor_disable(temp_handle));
 
-    const TickType_t xDelay = 500 / portTICK_PERIOD_MS;
-
     printf("========================= BROADCASTING =========================");
-    vTaskDelay(xDelay);
-    // httpd_ws_broadcast(server);
-
-    // char d[24] = "test";
-    // httpd_ws_frame_t ws_pkt;
-    // memset(&ws_pkt, 0, sizeof(httpd_ws_frame_t));
-    // ws_pkt.payload = (uint8_t *)d;
-    // ws_pkt.len = strlen(d);
-    // ws_pkt.type = HTTPD_WS_TYPE_TEXT;
-
-    // (&ws_pkt);
+    printf("%p", &server);
+    wss_server_send_messages(&server);
 }
