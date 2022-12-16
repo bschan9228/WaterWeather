@@ -6,7 +6,7 @@
     "config_defaults":    "C:/Users/bscha/Desktop/WaterWeather/WaterTopper/Software/WaterTopper_EspIDF/sdkconfig.defaults",
     "app_elf":            "WaterTopper_EspIDF.elf",
     "app_bin":            "WaterTopper_EspIDF.bin",
-    "git_revision":       "v5.0",
+    "git_revision":       "v5.0-dirty",
     "target":             "esp32s3",
     "rev":                "",
     "phy_data_partition": "",

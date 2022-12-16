@@ -12,6 +12,7 @@
 
 #include <esp_http_server.h>
 #include "driver/temperature_sensor.h"
+#include "driver/gpio.h"
 
 extern const char root_start[] asm("_binary_root_html_start");
 extern const char root_end[] asm("_binary_root_html_end");
@@ -19,9 +20,27 @@ extern const char root_end[] asm("_binary_root_html_end");
 extern const char root_js_start[] asm("_binary_root_js_start");
 extern const char root_js_end[] asm("_binary_root_js_end");
 
-static const size_t max_clients = 4;
+static const size_t max_clients = 16;
 
-// ================================ ISR ================================ //
+// ================================ RTOS ================================ //
+static void led_blink()
+{
+    gpio_reset_pin(GPIO_NUM_14);
+    gpio_set_direction(GPIO_NUM_14, GPIO_MODE_OUTPUT);
+    gpio_set_level(GPIO_NUM_14, 1);
+
+    // for (;;)
+    // {
+    //     gpio_set_level(GPIO_NUM_14, 1);
+    // }
+    while (1)
+    {
+        gpio_set_level(GPIO_NUM_14, 1);
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
+        gpio_set_level(GPIO_NUM_14, 0);
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
+    }
+}
 
 // == TEMPERATURE == //
 
@@ -30,7 +49,7 @@ temperature_sensor_config_t temp_sensor = {
     .range_min = 20,
     .range_max = 50,
 };
-float *temperature;
+float temperature;
 
 // ======================================================= =============== ======================================================= //
 // ======================================================= WEBSOCKET BEGIN ======================================================= //
@@ -55,32 +74,25 @@ struct async_resp_arg
  * async send function, which we put into the httpd work queue
  */
 
-static float update_temperature()
+static void update_temperature()
 {
     // Enable temperature sensor
     ESP_ERROR_CHECK(temperature_sensor_enable(temp_handle));
     // Get converted sensor data
     float tsens_out;
     ESP_ERROR_CHECK(temperature_sensor_get_celsius(temp_handle, &tsens_out));
-    printf("Temperature in %f °C\n", tsens_out);
+    // printf("Temperature in %f °C\n", tsens_out);
     // Disable the temperature sensor if it's not needed and save the power
     ESP_ERROR_CHECK(temperature_sensor_disable(temp_handle));
-    return tsens_out;
+
+    temperature = tsens_out;
 }
 
 static void send_temperature(void *arg)
 {
     static char data[128];
-    // Enable temperature sensor
-    ESP_ERROR_CHECK(temperature_sensor_enable(temp_handle));
-    // Get converted sensor data
-    float tsens_out;
-    ESP_ERROR_CHECK(temperature_sensor_get_celsius(temp_handle, &tsens_out));
-    printf("Temperature in %f °C\n", tsens_out);
-    // Disable the temperature sensor if it's not needed and save the power
-    ESP_ERROR_CHECK(temperature_sensor_disable(temp_handle));
 
-    snprintf(data, sizeof data, "%f", tsens_out);
+    snprintf(data, sizeof data, "%f", temperature);
     strcat(data, ",temperature");
 
     struct async_resp_arg *resp_arg = arg;
@@ -122,7 +134,7 @@ static void wss_server_send_messages(httpd_handle_t *server)
     // Send async message to all connected clients that use websocket protocol every 10 seconds
     while (send_messages)
     {
-        vTaskDelay(10000 / portTICK_PERIOD_MS);
+        vTaskDelay(5000 / portTICK_PERIOD_MS);
 
         if (!*server)
         { // httpd might not have been created by now
@@ -132,6 +144,7 @@ static void wss_server_send_messages(httpd_handle_t *server)
         int client_fds[max_clients];
         if (httpd_get_client_list(*server, &clients, client_fds) == ESP_OK)
         {
+            update_temperature();
             for (size_t i = 0; i < clients; ++i)
             {
                 int sock = client_fds[i];
@@ -144,7 +157,7 @@ static void wss_server_send_messages(httpd_handle_t *server)
                     if (httpd_queue_work(resp_arg->hd, send_temperature, resp_arg) != ESP_OK)
                     {
                         ESP_LOGE(TAG, "httpd_queue_work failed!");
-                        send_messages = false;
+                        // send_messages = false;
                         break;
                     }
                 }
@@ -212,13 +225,13 @@ static esp_err_t echo_handler(httpd_req_t *req)
     }
     ESP_LOGI(TAG, "Packet type: %d", ws_pkt.type);
     if (ws_pkt.type == HTTPD_WS_TYPE_TEXT &&
-        strcmp((char *)ws_pkt.payload, "broadcast") == 0)
+        strcmp((char *)ws_pkt.payload, "blink") == 0)
     {
         free(buf);
-        // TODO: RETURN
-        printf("%p", &req->handle);
-        wss_server_send_messages(req->handle);
-        return trigger_async_send(req->handle, req);
+
+        xTaskCreate(led_blink, "Blinkly", 4096, NULL, 1, NULL);
+        return ret;
+        // return trigger_async_send(req->handle, req);
     }
     if (ws_pkt.type == HTTPD_WS_TYPE_TEXT &&
         strcmp((char *)ws_pkt.payload, "temperature") == 0)
@@ -392,16 +405,7 @@ void app_main(void)
 
     ESP_ERROR_CHECK(temperature_sensor_install(&temp_sensor, &temp_handle));
 
-    // Enable temperature sensor
-    ESP_ERROR_CHECK(temperature_sensor_enable(temp_handle));
-    // Get converted sensor data
-    float tsens_out;
-    ESP_ERROR_CHECK(temperature_sensor_get_celsius(temp_handle, &tsens_out));
-    printf("Temperature in %f °C\n", tsens_out);
-    // Disable the temperature sensor if it's not needed and save the power
-    ESP_ERROR_CHECK(temperature_sensor_disable(temp_handle));
-
     printf("========================= BROADCASTING =========================");
-    printf("%p", &server);
-    wss_server_send_messages(&server);
+    xTaskCreate(wss_server_send_messages, "Websocket Updater", 2048, &server, 1, NULL);
+    // xTaskCreate(led_blink, "Blinkly", 4096, NULL, 1, NULL);
 }
